@@ -1,0 +1,14 @@
+# segredos
+.env
+# dados do kit (grandes e fornecidos pela organização: não versionar)
+dados/kit/*
+!dados/kit/LEIA-ME.md
+*.zip
+# Python
+__pycache__/
+*.pyc
+.venv/
+cache_resumos.json
+# sistema
+.DS_Store
+Thumbs.db

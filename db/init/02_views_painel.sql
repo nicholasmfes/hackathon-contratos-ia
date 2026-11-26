@@ -1,0 +1,21 @@
+-- =============================================================================
+-- Views do schema `painel` — o que o Metabase e o agente enxergam
+-- -----------------------------------------------------------------------------
+-- PENDENTE (passo 1b): escrever vw_contratos e vw_concentracao depois de
+-- conferir os nomes reais das colunas da tabela de contratos do kit:
+--     SELECT * FROM controle.tabelas_carregadas;
+--     SELECT column_name FROM information_schema.columns
+--      WHERE table_schema = 'kit' AND table_name = '<tabela de contratos>';
+--
+-- Regras herdadas do SIDEC-MB (ver notebooks/sidec_contratos_colab.py):
+--   - dias para vencer e situação calculados NA CONSULTA (CURRENT_DATE);
+--   - janelas: até 90 dias / 91-180 / >180 / sem data / encerrado;
+--   - concentração por CNPJ RAIZ (8 primeiros caracteres), CNPJ sempre texto;
+--   - pessoa física (CPF): identificador e nome mascarados nas views;
+--   - encerrado há até 90 dias = "verificar reposição" (sucessão não é inferida).
+--
+-- Este arquivo roda na primeira subida; enquanto só tiver comentários, não faz
+-- nada. Depois de escrito, aplique sem recriar o banco:
+--     docker compose exec -T db psql -U postgres -d hackathon < db/init/02_views_painel.sql
+-- =============================================================================
+SELECT 1;
