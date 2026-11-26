@@ -14,8 +14,8 @@
 #   (data, número) são aplicados nas views do schema `painel`.
 # - Nomes de coluna viram snake_case (numeroControlePNCP -> numero_controle_pncp),
 #   para o SQL — escrito por gente ou pela IA — não precisar de aspas.
-# - Ao final grava controle.carga_concluida; o healthcheck do compose só libera
-#   o Metabase depois disso.
+# - As views do schema painel vêm em 02_views_painel.sh, que ao final grava
+#   controle.carga_concluida; o healthcheck do compose só libera o Metabase depois disso.
 # =============================================================================
 set -euo pipefail
 
@@ -89,6 +89,5 @@ find "$PASTA_KIT" -type f -iname '*.csv' 2>/dev/null | sort | while read -r arq;
       SELECT '$tabela', '${arq#$PASTA_KIT/}', $ncol, count(*) FROM kit.\"$tabela\";"
 done
 
-"${PSQL[@]}" -d hackathon -c "CREATE TABLE controle.carga_concluida AS SELECT now() AS em;"
-echo "[carga] concluída:"
+echo "[carga] tabelas do kit carregadas:"
 "${PSQL[@]}" -d hackathon -c "SELECT tabela, colunas, linhas, arquivo FROM controle.tabelas_carregadas ORDER BY tabela;"

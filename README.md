@@ -24,7 +24,7 @@ Usuário ──► Chat ──► Agente (LangChain + modelo de IA)
 
 Pré-requisito: Docker com Compose.
 
-1. Descompacte o kit do PNCP em `dados/kit/` (ver `dados/kit/LEIA-ME.md`).
+1. Descompacte o `kit_hackathon_PNCP.zip` dentro de `dados/kit/`. Pode ficar a pasta `dados/kit/kit_hackathon/...`, porque a carga procura os CSV em todas as subpastas.
 2. `cp .env.example .env` e troque as senhas.
 3. `docker compose up -d`. Na primeira vez, a carga do kit leva alguns minutos; acompanhe com `docker compose logs -f db`.
 4. Abra http://localhost:3000, crie o usuário administrador e conecte o banco:
@@ -39,14 +39,43 @@ Agente (com o banco e o Metabase de pé): `pip install -r agente/requirements.tx
 |---|---|
 | `docker-compose.yml` | PostgreSQL 18 + Metabase (com base no SIDEC-MB) |
 | `db/init/01_carga_kit.sh` | Carga automática de todo `.csv` do kit em `kit.*` (tudo texto, colunas em snake_case), papéis e permissões |
-| `db/init/02_views_painel.sql` | Views tipadas `painel.vw_contratos` e `painel.vw_concentracao` (**pendente**) |
+| `db/init/02_views_painel.sh` + `db/init/sql/painel.sql` | Views do schema `painel` (ver abaixo) e a marca de carga concluída |
 | `agente/agente.py` | Agente LangChain com as ferramentas `consultar`, `criar_grafico` e `resumir_contrato` (**esqueleto**) |
 | `notebooks/sidec_contratos_colab.py` | Lógica de vencimento, concentração, resumo pela IA e conferência em pandas (testada com dados simulados) |
 
+## O que o Metabase e o agente enxergam (schema `painel`)
+
+| View | Grão | Para quê |
+|---|---|---|
+| `painel.vw_contratos` | 1 contrato ou empenho | Dados tipados: dias para vencer, situação, faixa de vencimento, verificar reposição, contrato × empenho, qualidade do dado |
+| `painel.vw_concentracao` | OM × fornecedor | Participação do fornecedor (CNPJ raiz) no valor vigente da OM, HHI da OM e alerta de concentração |
+| `painel.vw_concentracao_marinha` | fornecedor | Valor vigente na Marinha inteira, OM atendidas e participação no total |
+| `painel.vw_alertas` | 1 alerta | Lista única: vence em até 90 dias, vence em 91 a 180, encerrado há até 90 dias, fornecedor concentrado, qualidade do dado |
+| `painel.parametro` | 1 linha | Data de referência e limiares dos alertas |
+
+**Data de referência:** o kit está congelado em **31/10/2026**, e os prazos contam a partir dessa data (`painel.parametro.data_referencia`). Contar a partir de hoje marcaria como vencido o que pode ter sido prorrogado depois do corte, porque o kit não traz aditivos. Em produção, a referência passa a ser `CURRENT_DATE`.
+
+**Conferência com o kit real:** a regra de vigência das views bate com a marca `vigente_na_data_corte` da organização em **16.917 de 16.917 instrumentos (100%)**. Os totais também coincidem com o LEIAME: 3.335 instrumentos vigentes, dos quais 2.873 contratos (termo inicial).
+
+Alertas gerados sobre o kit (referência 31/10/2026):
+
+| Alerta | Quantidade |
+|---|---|
+| Vence em até 90 dias | 670 |
+| Vence em 91 a 180 dias | 412 |
+| Encerrado há até 90 dias (verificar reposição) | 597 |
+| Fornecedor concentrado na OM | 119 |
+| Qualidade do dado | 56 |
+
+Os números incluem contratos, empenhos e outros instrumentos; filtre por `familia_instrumento`.
+
+Para mudar um parâmetro, por exemplo o limiar de concentração:
+`docker compose exec db psql -U postgres -d hackathon -c "UPDATE painel.parametro SET limiar_participacao_pct = 50"`
+
 ## Status
 
-- [x] Docker: banco + Metabase; carga do kit testada com CSV simulado (BOM, `;`, LATIN1, subpastas)
-- [ ] Views `painel` sobre as colunas reais de contratos do kit
+- [x] Docker: banco + Metabase; carga do kit testada com o kit real (9 tabelas, contagens iguais às do LEIAME, cerca de 4 s)
+- [x] Views `painel` sobre o kit real, com conferência de 100% na regra de vigência; o agente lê o kit só pelas views
 - [ ] Painel fixo de alertas (vencimento ≤90 / 91–180 dias, concentração por CNPJ raiz) montado por script
 - [ ] Agente: `consultar` + `criar_grafico` funcionando de ponta a ponta
 - [ ] `resumir_contrato` com conferência dos números
@@ -58,8 +87,10 @@ Agente (com o banco e o Metabase de pé): `pip install -r agente/requirements.tx
 A lógica de vencimento, de concentração e as regras de dados vêm do **SIDEC-MB** (trabalho de MPI), adaptadas à base do hackathon.
 
 Limitações declaradas:
-- A base é um recorte público do PNCP, sem sanções (CEIS/CNEP) nem avaliações de fiscalização.
+- A base é um recorte público do PNCP congelado em 31/10/2026, só da Marinha no caso dos contratos, sem sanções (CEIS/CNEP) nem avaliações de fiscalização.
+- O kit não traz aditivos, prorrogações nem execução: um contrato prorrogado pode aparecer como encerrado. Por isso o alerta diz "verificar reposição", e não "vencido sem reposição".
 - A sucessão de contratos não é deduzida dos dados.
-- A diferença entre o valor global e o inicial inclui prorrogações.
+- A concentração soma objetos diferentes da mesma OM, então participação alta é dependência a verificar.
+- Valores acima de R$ 1 bilhão saem da concentração e viram alerta de qualidade do dado.
 - A IA pode errar o SQL. Por isso o SQL fica visível e há uma bateria de validação.
 - O sistema não conclui sobre irregularidade: é apoio à decisão, sujeito a revisão humana (Art. 2º, parágrafo único).

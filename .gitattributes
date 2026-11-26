@@ -1,0 +1,4 @@
+# scripts que rodam dentro do contêiner Linux: sempre LF, mesmo clonando no Windows
+*.sh  text eol=lf
+*.sql text eol=lf
+*.yml text eol=lf
