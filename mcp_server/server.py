@@ -25,6 +25,7 @@ import psycopg
 from psycopg.rows import dict_row
 from mcp.server.mcpserver import MCPServer
 from mcp.server.transport_security import TransportSecuritySettings
+from starlette.concurrency import run_in_threadpool
 from starlette.requests import Request
 from starlette.responses import FileResponse, JSONResponse, PlainTextResponse
 
@@ -493,6 +494,55 @@ async def saude(request: Request):
         return JSONResponse({"ok": True, "contratos_no_banco": n})
     except Exception as e:
         return JSONResponse({"ok": False, "erro": str(e)}, status_code=503)
+
+
+# --------------------------------------------------------------------------- API da tela web
+# O painel da tela do fiscal usa as MESMAS funções das ferramentas, sem passar pela IA:
+# abre na hora e continua funcionando mesmo se o Gemini estiver fora do ar.
+def _param(request: Request, nome: str, padrao: str = "") -> str:
+    return (request.query_params.get(nome) or padrao).strip()[:200]
+
+
+async def _responder(func, *args, **kwargs):
+    try:
+        return JSONResponse(await run_in_threadpool(func, *args, **kwargs))
+    except Exception as e:
+        return JSONResponse({"erro": f"Falha ao consultar a base: {str(e).splitlines()[0]}"}, status_code=500)
+
+
+@mcp.custom_route("/api/om", methods=["GET"])
+async def api_om(request: Request):
+    return await _responder(buscar_om, _param(request, "q"))
+
+
+@mcp.custom_route("/api/carteira", methods=["GET"])
+async def api_carteira(request: Request):
+    situacao = _param(request, "situacao", "vigentes")
+    if situacao not in {"vigentes", "encerrados_recentes", "todos"}:
+        situacao = "vigentes"
+    return await _responder(meus_contratos, _param(request, "uasg"), busca=_param(request, "busca"),
+                            situacao=situacao)
+
+
+@mcp.custom_route("/api/alertas", methods=["GET"])
+async def api_alertas(request: Request):
+    return await _responder(listar_alertas, _param(request, "uasg"), tipo=_param(request, "tipo"))
+
+
+@mcp.custom_route("/api/ficha", methods=["GET"])
+async def api_ficha(request: Request):
+    return await _responder(_ficha, _param(request, "id"), _param(request, "uasg"))
+
+
+@mcp.custom_route("/api/guia", methods=["GET"])
+async def api_guia(request: Request):
+    return await _responder(guia_do_fiscal, _param(request, "tema"))
+
+
+@mcp.custom_route("/api/agenda", methods=["GET"])
+async def api_agenda(request: Request):
+    return await _responder(exportar_agenda, unidade_codigo=_param(request, "uasg"),
+                            numero_controle_pncp=_param(request, "id"))
 
 
 if __name__ == "__main__":
