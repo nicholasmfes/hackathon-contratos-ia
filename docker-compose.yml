@@ -88,11 +88,26 @@ services:
     environment:
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
       GOOGLE_GENAI_USE_VERTEXAI: "FALSE"
-      MODELO_GEMINI: ${MODELO_GEMINI:-gemini-3.7-flash}
+      MODELO_GEMINI: ${MODELO_GEMINI:-gemini-3.5-flash}
       MCP_URL: http://mcp:8080/mcp
       TZ: America/Sao_Paulo
     ports:
       - "127.0.0.1:8000:8000"
+
+  # Tela do fiscal em http://localhost:8090: painel da OM (dados direto do banco, sem IA)
+  # + conversa com o Mentor (agente acima). O nginx serve a tela e repassa /api/* aos serviços.
+  web:
+    image: nginx:1.27-alpine
+    container_name: hk-web
+    restart: unless-stopped
+    depends_on:
+      - mcp
+      - agente
+    volumes:
+      - ./web/public:/usr/share/nginx/html:ro
+      - ./web/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "127.0.0.1:${WEB_PORTA:-8090}:80"
 
 volumes:
   db_data:
