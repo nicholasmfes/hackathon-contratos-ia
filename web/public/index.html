@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mentor do Fiscal</title>
+  <meta name="description" content="Apoio ao fiscal de contrato recém-designado: carteira da OM, prazos, roteiro da primeira semana e um mentor de IA.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b2545'/%3E%3Cg fill='none' stroke='%23e3b341' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='32' cy='15' r='5'/%3E%3Cpath d='M32 20v32M22 28h20M14 38c2 9 9 14 18 14s16-5 18-14'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-ancora" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V21M7.5 10.5h9M4 14c.8 4 3.8 7 8 7s7.2-3 8-7"/></g></symbol>
+    <symbol id="i-busca" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></g></symbol>
+    <symbol id="i-enviar" viewBox="0 0 24 24"><path fill="currentColor" d="M3.4 20.4 21 12 3.4 3.6 3.3 10l12.4 2-12.4 2z"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-calendario" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></g></symbol>
+    <symbol id="i-email" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5"/></g></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-db" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></g></symbol>
+    <symbol id="i-externo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></g></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19z"/><path d="M12 10v4M12 17.5v.01"/></g></symbol>
+    <symbol id="i-mais" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+  </svg>
+
+  <header class="topo">
+    <a class="marca" href="#" id="marca" aria-label="Mentor do Fiscal, início">
+      <span class="marca-icone"><svg><use href="#i-ancora"/></svg></span>
+      <span class="marca-texto"><strong>Mentor do Fiscal</strong><span>Intendência com IA · Marinha do Brasil</span></span>
+    </a>
+    <div class="topo-om" id="topo-om" hidden>
+      <span class="topo-om-rotulo">Sua OM</span>
+      <span class="topo-om-nome" id="topo-om-nome"></span>
+      <button class="botao-texto" id="trocar-om" type="button">Trocar</button>
+    </div>
+    <a class="topo-link" id="link-rastro" href="#" target="_blank" rel="noopener" title="Interface técnica do Google ADK, com o rastro de cada ferramenta chamada">
+      Rastro técnico <svg><use href="#i-externo"/></svg>
+    </a>
+  </header>
+
+  <!-- ============================ TELA 1: escolher a OM ============================ -->
+  <main id="tela-inicio" class="inicio" hidden>
+    <div class="inicio-grade">
+      <section class="inicio-texto">
+        <p class="sobretitulo">1º Hackathon “Intendência com IA!” · Desafio 4</p>
+        <h1>Foi designado fiscal de contrato?<br><span>Comece por aqui.</span></h1>
+        <p class="lead">Diga qual é a sua OM. Em segundos você vê os contratos que vai acompanhar, o que vence primeiro
+          e um roteiro para a primeira semana. Qualquer dúvida, pergunte ao Mentor.</p>
+        <ul class="recursos">
+          <li><span class="recurso-icone"><svg><use href="#i-db"/></svg></span><div><strong>Conheça sua carteira</strong><span>Contratos, valores e prazos, direto da base do PNCP.</span></div></li>
+          <li><span class="recurso-icone"><svg><use href="#i-alerta"/></svg></span><div><strong>Saiba o que fazer agora</strong><span>Alertas de vencimento e o passo a passo do fiscal (Lei 14.133/2021).</span></div></li>
+          <li><span class="recurso-icone"><svg><use href="#i-doc"/></svg></span><div><strong>Gere os documentos</strong><span>Relatório em Word, e-mail ao gestor e agenda de vencimentos.</span></div></li>
+        </ul>
+      </section>
+
+      <section class="cartao busca-om" aria-labelledby="rotulo-busca">
+        <label id="rotulo-busca" for="busca-om">Qual é a sua OM?</label>
+        <div class="campo-busca">
+          <svg><use href="#i-busca"/></svg>
+          <input id="busca-om" type="search" autocomplete="off" spellcheck="false"
+                 placeholder="Nome, cidade ou código UASG" aria-describedby="dica-busca" aria-controls="resultados-om">
+        </div>
+        <p class="dica" id="dica-busca">Ex.: “Intendência Natal”, “Capitania Piauí” ou “783810”.</p>
+        <ul id="resultados-om" class="resultados" role="listbox" aria-label="OMs encontradas"></ul>
+        <div class="atalhos">
+          <span>Para a demonstração:</span>
+          <button type="button" class="chip" data-uasg="783810">Centro de Intendência da Marinha em Natal</button>
+          <button type="button" class="chip" data-uasg="784330">Capitania dos Portos do Piauí</button>
+          <button type="button" class="chip" data-uasg="791180">Base Aérea Naval de São Pedro da Aldeia</button>
+        </div>
+      </section>
+    </div>
+    <p class="rodape-dados">Base: kit do PNCP fornecido pela organização, congelado em 31/10/2026 (contratos da Marinha).
+      Sem dado de pessoa física. Orientações geradas com IA são subsídio e devem ser revisadas (Art. 2º).</p>
+  </main>
+
+  <!-- ============================ TELA 2: painel + Mentor ============================ -->
+  <div id="tela-painel" class="area" hidden>
+    <main class="painel" id="painel">
+      <section class="om-cabecalho">
+        <div>
+          <p class="sobretitulo" id="om-local"></p>
+          <h1 id="om-nome"></h1>
+          <p class="om-ref">UASG <strong id="om-uasg"></strong> · prazos contados a partir de <strong id="om-dataref">31/10/2026</strong>, data de corte da base</p>
+        </div>
+        <div class="om-acoes">
+          <button type="button" class="botao secundario" id="baixar-agenda"><svg><use href="#i-calendario"/></svg>Agenda de vencimentos (.ics)</button>
+          <button type="button" class="botao primario" data-pergunta="Gere um relatório em Word da carteira da minha OM, com as orientações do que fazer, para eu levar ao gestor."><svg><use href="#i-doc"/></svg>Relatório para o gestor</button>
+        </div>
+      </section>
+
+      <section class="kpis" id="kpis" aria-label="Resumo da carteira"></section>
+
+      <section class="cartao" id="primeira-semana" aria-labelledby="titulo-semana">
+        <header class="cartao-topo">
+          <div>
+            <h2 id="titulo-semana">Sua primeira semana como fiscal</h2>
+            <p class="subtitulo">Roteiro do guia do fiscal. Marque o que já fez; o Mentor ajuda em cada passo.</p>
+          </div>
+          <div class="progresso" id="progresso" aria-live="polite"></div>
+        </header>
+        <ol class="roteiro" id="roteiro"></ol>
+      </section>
+
+      <section class="cartao" id="carteira" aria-labelledby="titulo-carteira">
+        <header class="cartao-topo">
+          <div>
+            <h2 id="titulo-carteira">Carteira de contratos</h2>
+            <p class="subtitulo">Clique em um contrato para abrir a ficha.</p>
+          </div>
+          <div class="filtros">
+            <div class="abas" role="tablist" aria-label="Situação">
+              <button type="button" role="tab" class="aba ativa" data-situacao="vigentes" aria-selected="true">Vigentes</button>
+              <button type="button" role="tab" class="aba" data-situacao="encerrados_recentes" aria-selected="false">Encerrados há até 90 dias</button>
+            </div>
+            <div class="campo-busca pequeno">
+              <svg><use href="#i-busca"/></svg>
+              <input id="busca-contrato" type="search" placeholder="Objeto, fornecedor ou nº" autocomplete="off">
+            </div>
+          </div>
+        </header>
+        <div class="tabela-rolagem">
+          <table class="tabela">
+            <thead><tr><th>Contrato</th><th>Objeto e fornecedor</th><th class="num">Valor global</th><th>Fim da vigência</th><th>Situação</th></tr></thead>
+            <tbody id="linhas-carteira"></tbody>
+          </table>
+        </div>
+        <p class="nota" id="nota-carteira"></p>
+      </section>
+
+      <section class="cartao" id="alertas" aria-labelledby="titulo-alertas">
+        <header class="cartao-topo">
+          <div>
+            <h2 id="titulo-alertas">Alertas da OM</h2>
+            <p class="subtitulo">Sinais para verificar com o gestor, nunca conclusão de irregularidade.</p>
+          </div>
+          <button type="button" class="botao secundario pequeno" data-pergunta="Quais alertas a minha OM tem hoje e o que eu faço com cada um?"><svg><use href="#i-chat"/></svg>Explicar alertas</button>
+        </header>
+        <ul class="lista-alertas" id="lista-alertas"></ul>
+      </section>
+
+      <p class="rodape-dados">Fonte: kit do PNCP (31/10/2026). O kit não traz aditivos, prorrogações, execução, pagamentos nem o nome dos
+        fiscais: um contrato prorrogado pode aparecer como encerrado. Os números saem do banco; a IA só explica e escreve.</p>
+    </main>
+
+    <aside class="chat" id="chat" aria-label="Conversa com o Mentor do Fiscal">
+      <header class="chat-topo">
+        <div class="chat-id">
+          <span class="avatar"><svg><use href="#i-ancora"/></svg></span>
+          <div><strong>Mentor do Fiscal</strong><span id="chat-modelo">Gemini + ferramentas do banco (MCP)</span></div>
+        </div>
+        <div class="chat-acoes">
+          <button type="button" class="botao-texto" id="nova-conversa" title="Começar uma conversa nova"><svg><use href="#i-mais"/></svg>Nova conversa</button>
+          <button type="button" class="botao-icone so-movel" id="fechar-chat" aria-label="Fechar conversa"><svg><use href="#i-x"/></svg></button>
+        </div>
+      </header>
+      <div class="mensagens" id="mensagens" aria-live="polite"></div>
+      <div class="sugestoes" id="sugestoes" aria-label="Sugestões de perguntas"></div>
+      <form class="compositor" id="form-chat">
+        <textarea id="entrada" rows="1" placeholder="Pergunte ao Mentor…" aria-label="Mensagem para o Mentor"></textarea>
+        <button type="submit" class="botao-enviar" id="enviar" aria-label="Enviar"><svg><use href="#i-enviar"/></svg></button>
+      </form>
+    </aside>
+  </div>
+
+  <button type="button" class="fab" id="abrir-chat" hidden><svg><use href="#i-chat"/></svg>Falar com o Mentor</button>
+
+  <!-- Ficha do contrato -->
+  <div class="gaveta" id="ficha" hidden>
+    <div class="gaveta-fundo" data-fechar></div>
+    <section class="gaveta-painel" role="dialog" aria-modal="true" aria-labelledby="ficha-titulo">
+      <header class="gaveta-topo">
+        <div><span class="sobretitulo">Ficha do contrato</span><h2 id="ficha-titulo">Carregando…</h2></div>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar ficha"><svg><use href="#i-x"/></svg></button>
+      </header>
+      <div class="gaveta-corpo" id="ficha-corpo"></div>
+    </section>
+  </div>
+
+  <div class="aviso-flutuante" id="aviso" role="status" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
