@@ -1,4 +1,84 @@
-# Hackathon C-ApA-IM · Desafio 4 — Gestão e acompanhamento de contratos com IA
+# Hackathon C-ApA-IM · Desafio 4 — Mentor do Fiscal
+
+1º Hackathon "Intendência com IA!" (CIANB, 26–27/11/2026).
+
+**Problema.** Um oficial acaba de ser designado fiscal de contrato e nunca fiscalizou. Ele não sabe quais contratos são seus, o que o fiscal anterior deixou, o que vence e o que precisa cobrar.
+
+**Solução.** Um agente de IA (Google ADK + Gemini) que conversa com o fiscal em português, consulta a base de contratos do PNCP fornecida pela organização e o ensina, passo a passo: quais são os contratos, o que diz cada um, o que vence, o que pedir na passagem de fiscalização, e gera o relatório, o e-mail ao gestor e a agenda.
+
+## Arquitetura
+
+```
+Fiscal ─► Interface web do Google ADK (http://localhost:8000)
+            └─ Agente "mentor_do_fiscal" (Gemini) ── escolhe a ferramenta e escreve os textos
+                  └─ MCP (http://mcp:8080/mcp) ── servidor de ferramentas do sistema
+                        ├─ buscar_om · meus_contratos · ficha_contrato · listar_alertas
+                        ├─ guia_do_fiscal (passo a passo conferido, Lei 14.133/2021)
+                        ├─ gerar_relatorio (Word ou texto de e-mail) · exportar_agenda (.ics)
+                        └─ consultar_sql (só leitura)
+                              └─ PostgreSQL, schema painel (views sem dado pessoal, usuário agente_ro)
+Metabase (http://localhost:3000) continua disponível para painéis.
+```
+
+- **Quem calcula é o banco; a IA explica e escreve.** Nenhum número sai do modelo.
+- **MCP**: as ferramentas do sistema viram um servidor MCP padrão; qualquer agente compatível pode usá-las.
+- **Art. 5º**: o agente só enxerga o schema `painel` (sem CPF e sem nome de pessoa física), com usuário só de leitura.
+
+## Como rodar (Windows, macOS ou Linux)
+
+Pré-requisito: Docker Desktop aberto.
+
+```
+git clone https://github.com/nicholasmfes/hackathon-contratos-ia.git
+cd hackathon-contratos-ia
+copy .env.example .env        (no macOS/Linux: cp .env.example .env)
+```
+
+Abra o `.env` e preencha `GOOGLE_API_KEY` (chave do Gemini, gratuita em https://aistudio.google.com/apikey). Depois:
+
+```
+docker compose up -d --build
+```
+
+Na primeira vez a carga do kit leva de 1 a 3 minutos. Acompanhe com `docker compose ps` até `hk-db` ficar `healthy`.
+
+- Agente: **http://localhost:8000** → escolha `mentor_fiscal` no canto superior esquerdo.
+- Teste das ferramentas sem IA: http://localhost:8080/saude deve mostrar `"contratos_no_banco": 16946`.
+- Metabase (opcional): http://localhost:3000.
+
+Se o Gemini gratuito bloquear por limite de uso: troque a chave ou o `MODELO_GEMINI` no `.env` e rode `docker compose up -d agente`.
+
+## Roteiros de demonstração (fiscal recém-designado)
+
+Escreva as frases no chat, na ordem. A OM de exemplo é o Centro de Intendência da Marinha em Natal (UASG 783810): 20 contratos vigentes, 3 vencem em até 90 dias.
+
+**Roteiro 1 — "Cheguei: quais são meus contratos?"** (conhecer a carteira)
+1. `Olá, fui designado fiscal de contrato e nunca fiscalizei. Por onde começo?`
+2. `Sou do Centro de Intendência da Marinha em Natal. Quais contratos a OM tem vigentes?`
+3. `Quais vencem primeiro e o que eu preciso fazer com cada um?`
+4. `Exporte esses vencimentos para a minha agenda.` → baixa o .ics
+
+**Roteiro 2 — "Herdei um contrato: o que o fiscal anterior deixou?"** (entender um contrato)
+1. `Vou fiscalizar o contrato 00028 do Centro de Intendência de Natal. Me explique esse contrato em linguagem simples.`
+2. `O que o fiscal anterior fez nesse contrato?` → o agente diz que o kit não traz isso e lista o que pedir na passagem
+3. `Ele vence em 7 dias. O que eu faço agora?` → passo a passo de vencimento (guia + ficha)
+4. `Gere um relatório em Word desse contrato para eu levar ao gestor.` → baixa o .docx
+
+**Roteiro 3 — "Preciso cobrar e avisar o gestor"** (agir)
+1. `Quais alertas a minha OM tem hoje?`
+2. `A empresa atrasou uma entrega. Como eu registro e cobro?` → guia de ocorrências
+3. `Escreva um e-mail ao gestor avisando dos contratos que vencem em até 180 dias e do que precisa ser decidido.` → texto pronto para copiar
+4. `Na Marinha, quantos contratos de serviços estão vigentes?` → consulta livre (SQL visível no rastro)
+
+Na interface do ADK, cada chamada de ferramenta aparece no chat e no painel de eventos: é a prova de que os números vêm do banco.
+
+## Limitações
+
+O kit não traz aditivos, prorrogações, execução, pagamentos nem o nome dos fiscais; um contrato prorrogado pode aparecer como encerrado. Os prazos contam a partir de 31/10/2026 (data de corte do kit). Alertas são sinais para verificar, nunca conclusão de irregularidade. Resumos, relatórios e orientações são subsídio e precisam de revisão humana (Art. 2º do regulamento). No plano gratuito do Gemini, o Google pode usar o conteúdo enviado para melhorar seus produtos: por isso só dado público do kit, sem pessoa física, sai do sistema.
+
+---
+
+## Versão anterior (LangChain + Metabase)
 
 1º Hackathon "Intendência com IA!" (CIANB, 26–27/11/2026).
 

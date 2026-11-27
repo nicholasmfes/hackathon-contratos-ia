@@ -3,6 +3,12 @@
 # dados do kit (grandes e fornecidos pela organização: não versionar)
 dados/kit/*
 !dados/kit/LEIA-ME.md
+# recorte do kit usado no Desafio 4 (nome de pessoa física removido): versionado
+!dados/kit/contratos.csv
+!dados/kit/unidades.csv
+# arquivos gerados pelo agente (relatórios, agenda)
+saida/*
+!saida/.gitkeep
 *.zip
 # Python
 __pycache__/
